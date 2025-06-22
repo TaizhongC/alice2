@@ -5,7 +5,20 @@ project(
     LANGUAGES CXX C # programming languages used by the project
 )
 
+# Check if webgpu binaries exist, if not, download them
+include(scripts/DownloadWebGPU.cmake)
+
+# Include webgpu directory, to define the 'webgpu' target
+add_subdirectory(depends/webgpu)
+
 add_executable(alice2 src/main.cpp)
+
+# Add the 'webgpu' target as a dependency of our App
+target_link_libraries(alice2 PRIVATE webgpu)
+
+# The application's binary must find wgpu.dll or libwgpu.so at runtime,
+# so we automatically copy it.
+target_copy_webgpu_binaries(alice2)
 
 set_target_properties(alice2 PROPERTIES
     CXX_STANDARD 17
@@ -17,8 +30,8 @@ set_target_properties(alice2 PROPERTIES
 # Custom output directories for MSVC
 if(MSVC)
     set_target_properties(alice2 PROPERTIES
-        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${CMAKE_VS_PLATFORM_NAME}/$<CONFIG>/EXE"
-        PDB_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${CMAKE_VS_PLATFORM_NAME}/$<CONFIG>/EXE"
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${CMAKE_VS_PLATFORM_NAME}/$<CONFIG>/exe"
+        PDB_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${CMAKE_VS_PLATFORM_NAME}/$<CONFIG>/exe"
     )
 endif()
 
