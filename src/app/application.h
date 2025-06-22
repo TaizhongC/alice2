@@ -2,6 +2,8 @@
 
 namespace alice2
 {
+    class Renderer;
+
     class Application
     {
     public:

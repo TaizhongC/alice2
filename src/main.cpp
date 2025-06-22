@@ -1,16 +1,27 @@
-#include "application.h"
+#include "app/application.h"
+
+#ifdef __EMSCRIPTEN__
+#include <emscripten/emscripten.h>
+#endif
+
+alice2::Application app;
+
+void main_loop_emscripten() {
+    app.MainLoop();
+}
 
 int main() {
-    alice2::Application app;
-
-    if (!app.Initialize()) {
+    if (!app.Initialize(800, 600)) {
         return 1;
     }
 
-    // Warning: this is still not Emscripten-friendly, see below
+#ifdef __EMSCRIPTEN__
+    emscripten_set_main_loop(main_loop_emscripten, 0, true);
+#else
     while (app.IsRunning()) {
         app.MainLoop();
     }
+#endif
 
     app.Terminate();
 

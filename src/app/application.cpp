@@ -1,4 +1,5 @@
 #include "application.h"
+#include "renderer.h"
 #include <iostream>
 
 namespace alice2
@@ -19,11 +20,20 @@ namespace alice2
             return false;
         }
 
+        m_Renderer = new Renderer();
+        if (!m_Renderer->Initialize(m_Window)) {
+            std::cerr << "Failed to initialize renderer" << std::endl;
+            return false;
+        }
+
         return true;
     }
 
         void Application::Terminate()
         {
+            m_Renderer->Terminate();
+            delete m_Renderer;
+
             // Move all the release/destroy/terminate calls here
             glfwDestroyWindow(m_Window);
             glfwTerminate();
