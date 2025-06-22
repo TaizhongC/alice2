@@ -6,24 +6,16 @@
 
 alice2::Application app;
 
-void main_loop_emscripten() {
-    app.MainLoop();
-}
+// void main_loop_emscripten() {
+//     app.MainLoop();
+// }
 
 int main() {
-    if (!app.Initialize(800, 600)) {
+    if (!app.Initialize()) {
         return 1;
     }
 
-#ifdef __EMSCRIPTEN__
-    emscripten_set_main_loop(main_loop_emscripten, 0, true);
-#else
-    while (app.IsRunning()) {
-        app.MainLoop();
-    }
-#endif
-
-    app.Terminate();
+    app.Run();
 
     return 0;
 }

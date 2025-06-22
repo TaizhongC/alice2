@@ -1,3 +1,4 @@
+#pragma once
 #include <webgpu/webgpu.hpp>
 
 struct GLFWwindow;

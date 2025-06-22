@@ -19,11 +19,12 @@ endif()
 
 add_subdirectory(depends/webgpu)
 
-add_executable(alice2 
-    src/main.cpp
-    src/app/application.cpp
-    src/app/renderer.cpp
-)
+# Collect source files
+file(GLOB_RECURSE ALICE2_SOURCES "src/*.cpp")
+
+add_executable(alice2 ${ALICE2_SOURCES})
+
+target_include_directories(alice2 PRIVATE src)
 
 # Add the 'webgpu' target as a dependency of our App
 target_link_libraries(alice2 PRIVATE webgpu glfw glfw3webgpu)
