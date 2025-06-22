@@ -11,6 +11,7 @@ include(scripts/DownloadWebGPU.cmake)
 # Include dependencies
 if (NOT EMSCRIPTEN)
     add_subdirectory(depends/glfw)
+    add_subdirectory(depends/glfw3webgpu)
 else()
     add_library(depends/glfw INTERFACE)
     target_link_options(depends/glfw INTERFACE -sUSE_GLFW=3)
@@ -25,7 +26,7 @@ add_executable(alice2
 )
 
 # Add the 'webgpu' target as a dependency of our App
-target_link_libraries(alice2 PRIVATE webgpu glfw)
+target_link_libraries(alice2 PRIVATE webgpu glfw glfw3webgpu)
 
 # The application's binary must find wgpu.dll or libwgpu.so at runtime,
 # so we automatically copy it.

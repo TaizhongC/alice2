@@ -27,3 +27,5 @@ zspace_alice2/
 ## Summary of Recent Changes
 
 The initial proof-of-concept has been refactored into a more robust structure. The `Application` class now handles the GLFW window and main loop, while the `Renderer` class encapsulates all WebGPU setup and will contain all future rendering code. This separation of concerns makes the project easier to manage and extend. The build system has been updated accordingly, and several compilation issues have been resolved.
+
+Most recently, a WebGPU surface was created and configured to draw to the GLFW window. The application now successfully renders a solid color by clearing the screen on each frame, establishing a basic render loop.

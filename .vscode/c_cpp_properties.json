@@ -6,6 +6,7 @@
                 "${workspaceFolder}/**",
                 "${workspaceFolder}/depends/webgpu/include",
                 "${workspaceFolder}/depends/glfw/include",
+                "${workspaceFolder}/depends/glfw3webgpu",
                 "${workspaceFolder}/src/app"
             ],
             "defines": [

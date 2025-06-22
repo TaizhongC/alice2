@@ -41,6 +41,7 @@ namespace alice2
 
         void Application::MainLoop()
         {
+            m_Renderer->Render();
             glfwPollEvents();
         }
 
