@@ -1,3 +1,4 @@
+#define WEBGPU_CPP_IMPLEMENTATION
 #include "application.h"
 #include "renderer.h"
 #include <iostream>
