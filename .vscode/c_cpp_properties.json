@@ -4,7 +4,9 @@
             "name": "Win64",
             "includePath": [
                 "${workspaceFolder}/**",
-                "${workspaceFolder}/depends/webgpu/include"
+                "${workspaceFolder}/depends/webgpu/include",
+                "${workspaceFolder}/depends/glfw/include",
+                "${workspaceFolder}/src/app"
             ],
             "defines": [
                 "_DEBUG",

@@ -8,7 +8,14 @@ project(
 # Check if webgpu binaries exist, if not, download them
 include(scripts/DownloadWebGPU.cmake)
 
-# Include webgpu directory, to define the 'webgpu' target
+# Include dependencies
+if (NOT EMSCRIPTEN)
+    add_subdirectory(glfw)
+else()
+    add_library(glfw INTERFACE)
+    target_link_options(glfw INTERFACE -sUSE_GLFW=3)
+endif()
+
 add_subdirectory(depends/webgpu)
 
 add_executable(alice2 src/main.cpp)
