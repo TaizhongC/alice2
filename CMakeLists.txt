@@ -21,7 +21,7 @@ target_link_libraries(alice2 PRIVATE webgpu)
 target_copy_webgpu_binaries(alice2)
 
 set_target_properties(alice2 PROPERTIES
-    CXX_STANDARD 17
+    CXX_STANDARD 20
     CXX_STANDARD_REQUIRED ON
     CXX_EXTENSIONS OFF
     COMPILE_WARNING_AS_ERROR ON
@@ -48,4 +48,13 @@ if (XCODE)
         XCODE_GENERATE_SCHEME ON
         XCODE_SCHEME_ENABLE_GPU_FRAME_CAPTURE_MODE "Metal"
     )
+endif()
+
+# Options that are specific to Emscripten
+if (EMSCRIPTEN)
+    # Enable the use of emscripten_sleep()
+    target_link_options(alice2 PRIVATE -sASYNCIFY)
+
+    # Generate a full web page rather than a simple WebAssembly module
+    set_target_properties(alice2 PROPERTIES SUFFIX ".html")
 endif()
