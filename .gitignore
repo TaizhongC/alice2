@@ -1,4 +1,5 @@
 /build
+/depends/webgpu/bin/
 
 memory.md
 TODO.md
