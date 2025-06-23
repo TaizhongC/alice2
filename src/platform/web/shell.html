@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no"/>
+    <title>Alice 2 - Unified WebGPU Application</title>
+    <link rel="stylesheet" href="ui/styles.css">
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        background: #1a1a1a;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        overflow: hidden;
+      }
+
+      #app-container {
+        display: flex;
+        height: 100vh;
+        width: 100vw;
+      }
+
+      #control-panel {
+        background: #2d2d2d;
+        border-right: 1px solid #444;
+        min-width: 280px;
+        max-width: 320px;
+        padding: 20px;
+        box-sizing: border-box;
+        overflow-y: auto;
+      }
+
+      #canvas-container {
+        flex: 1;
+        position: relative;
+        background: #000;
+      }
+
+      #canvas {
+        width: 100%;
+        height: 100%;
+        display: block;
+        cursor: crosshair;
+      }
+
+      #status-bar {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: rgba(0, 0, 0, 0.8);
+        color: #fff;
+        padding: 8px 16px;
+        font-size: 12px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .app-title {
+        color: #4CAF50;
+        font-size: 18px;
+        font-weight: bold;
+        margin-bottom: 20px;
+        text-align: center;
+      }
+
+      .section-title {
+        color: #fff;
+        font-size: 14px;
+        font-weight: bold;
+        margin: 20px 0 10px 0;
+        border-bottom: 1px solid #444;
+        padding-bottom: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app-container">
+      <div id="control-panel">
+        <div class="app-title">Alice 2</div>
+
+        <div class="section-title">Scene Controls</div>
+        <div class="button-group">
+          <button id="add-test-geometry" class="control-button">Add Test Geometry</button>
+          <button id="clear-scene" class="control-button">Clear Scene</button>
+          <button id="reset-camera" class="control-button">Reset Camera</button>
+        </div>
+
+        <div class="section-title">Rendering</div>
+        <div class="slider-group">
+          <div class="slider-container">
+            <label class="slider-label">Background Brightness</label>
+            <input type="range" id="brightness-slider" class="control-slider" min="0" max="1" step="0.01" value="0.2">
+            <span class="slider-value">0.2</span>
+          </div>
+          <div class="slider-container">
+            <label class="slider-label">Point Size</label>
+            <input type="range" id="point-size-slider" class="control-slider" min="1" max="20" step="0.5" value="5">
+            <span class="slider-value">5</span>
+          </div>
+          <div class="slider-container">
+            <label class="slider-label">Line Width</label>
+            <input type="range" id="line-width-slider" class="control-slider" min="0.5" max="5" step="0.1" value="1">
+            <span class="slider-value">1</span>
+          </div>
+        </div>
+
+        <div class="section-title">Camera</div>
+        <div class="slider-group">
+          <div class="slider-container">
+            <label class="slider-label">FOV</label>
+            <input type="range" id="fov-slider" class="control-slider" min="30" max="120" step="1" value="45">
+            <span class="slider-value">45°</span>
+          </div>
+        </div>
+
+        <div class="section-title">Debug</div>
+        <div class="button-group">
+          <button id="toggle-wireframe" class="control-button">Toggle Wireframe</button>
+          <button id="performance-info" class="control-button">Performance Info</button>
+        </div>
+      </div>
+
+      <div id="canvas-container">
+        <canvas id="canvas" oncontextmenu="event.preventDefault()"></canvas>
+        <div id="status-bar">
+          <span id="fps-counter">FPS: --</span>
+          <span id="render-info">WebGPU Ready</span>
+          <span id="platform-info">Web Platform</span>
+        </div>
+      </div>
+    </div>
+
+    <script type='text/javascript'>
+      // Alice 2 Module Configuration
+      var Module = {
+        canvas: (function() {
+          var canvas = document.getElementById('canvas');
+          return canvas;
+        })(),
+
+        onRuntimeInitialized: function() {
+          console.log('Alice 2 WebGPU Runtime Initialized');
+          if (typeof Alice2UI !== 'undefined') {
+            Alice2UI.init();
+          }
+        },
+
+        print: function(text) {
+          console.log('Alice2:', text);
+        },
+
+        printErr: function(text) {
+          console.error('Alice2 Error:', text);
+        }
+      };
+
+      // Handle canvas resizing
+      function resizeCanvas() {
+        const canvas = document.getElementById('canvas');
+        const container = document.getElementById('canvas-container');
+        const rect = container.getBoundingClientRect();
+
+        canvas.width = rect.width * window.devicePixelRatio;
+        canvas.height = rect.height * window.devicePixelRatio;
+        canvas.style.width = rect.width + 'px';
+        canvas.style.height = rect.height + 'px';
+
+        // Notify the application about resize
+        if (Module && Module._alice2_resize) {
+          Module._alice2_resize(canvas.width, canvas.height);
+        }
+      }
+
+      // Initial resize and setup resize listener
+      window.addEventListener('load', resizeCanvas);
+      window.addEventListener('resize', resizeCanvas);
+    </script>
+
+    <script src="ui/controls.js"></script>
+    {{{ SCRIPT }}}
+  </body>
+</html>

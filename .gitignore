@@ -1,4 +1,4 @@
-/build
+/_build_native
 /depends/webgpu/bin/
 
 memory.md

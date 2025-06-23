@@ -1,0 +1,102 @@
+/* Reset and base styles */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+body {
+    display: flex;
+    flex-direction: row;
+    background-color: #2d2d2d;
+}
+
+/* Control Panel */
+#control-panel {
+    min-width: 300px;
+    width: 300px;
+    height: 100%;
+    padding: 15px;
+    background-color: #1a1a1a;
+    color: #ffffff;
+    border-right: 1px solid #333;
+    overflow-y: auto;
+    flex-shrink: 0;
+}
+
+/* Canvas Container */
+.emscripten {
+    position: relative;
+    flex: 1;
+    min-height: 100%;
+    background-color: #2d2d2d;
+    display: flex;
+}
+
+/* Canvas Element */
+#canvas {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+/* Rest of your control styles... */
+
+.button-group {
+    margin-bottom: 20px;
+}
+
+.control-button {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    background-color: #2d2d2d;
+    border: none;
+    color: white;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.control-button:hover {
+    background-color: #3d3d3d;
+}
+
+.slider-group {
+    margin-bottom: 20px;
+}
+
+.slider-container {
+    margin-bottom: 15px;
+}
+
+.slider-label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.control-slider {
+    width: 100%;
+    background: #2d2d2d;
+    -webkit-appearance: none;
+    height: 8px;
+    border-radius: 4px;
+}
+
+.control-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    background: #ff0066;
+    border-radius: 50%;
+    cursor: pointer;
+} 
