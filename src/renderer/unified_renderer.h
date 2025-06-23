@@ -1,9 +1,10 @@
 #pragma once
 
-#include <webgpu/webgpu.hpp>
+#include <webgpu/webgpu.h>
 #include <memory>
 #include <vector>
 #include <array>
+#include <string>
 #include "../core/base/Types.h"
 
 // Forward declarations
@@ -54,19 +55,19 @@ public:
     void SetClearColor(const Color& color);
     
     // WebGPU access for advanced usage
-    wgpu::Device GetDevice() const { return m_Device; }
-    wgpu::Queue GetQueue() const { return m_Queue; }
+    WGPUDevice GetDevice() const { return m_Device; }
+    WGPUQueue GetQueue() const { return m_Queue; }
 
 private:
     // Platform reference
     platform::IPlatform* m_Platform = nullptr;
-    
+
     // WebGPU core objects
-    wgpu::Instance m_Instance = nullptr;
-    wgpu::Surface m_Surface = nullptr;
-    wgpu::Device m_Device = nullptr;
-    wgpu::Queue m_Queue = nullptr;
-    wgpu::TextureFormat m_SurfaceFormat = wgpu::TextureFormat::Undefined;
+    WGPUInstance m_Instance = nullptr;
+    WGPUSurface m_Surface = nullptr;
+    WGPUDevice m_Device = nullptr;
+    WGPUQueue m_Queue = nullptr;
+    WGPUTextureFormat m_SurfaceFormat = WGPUTextureFormat_Undefined;
     
     // Rendering state
     int m_Width = 0;
@@ -79,14 +80,14 @@ private:
     std::array<float, 16> m_ModelMatrix;
     
     // Rendering pipelines
-    wgpu::RenderPipeline m_PointPipeline = nullptr;
-    wgpu::RenderPipeline m_LinePipeline = nullptr;
-    wgpu::RenderPipeline m_TrianglePipeline = nullptr;
-    
+    WGPURenderPipeline m_PointPipeline = nullptr;
+    WGPURenderPipeline m_LinePipeline = nullptr;
+    WGPURenderPipeline m_TrianglePipeline = nullptr;
+
     // Buffers for immediate mode rendering
-    wgpu::Buffer m_VertexBuffer = nullptr;
-    wgpu::Buffer m_UniformBuffer = nullptr;
-    wgpu::BindGroup m_UniformBindGroup = nullptr;
+    WGPUBuffer m_VertexBuffer = nullptr;
+    WGPUBuffer m_UniformBuffer = nullptr;
+    WGPUBindGroup m_UniformBindGroup = nullptr;
     
     // Vertex data for batching
     std::vector<Vertex> m_PointVertices;
@@ -98,16 +99,10 @@ private:
     bool CreatePipelines();
     bool CreateBuffers();
     void UpdateUniformBuffer();
-    void FlushVertexData(const std::vector<Vertex>& vertices, wgpu::RenderPipeline pipeline, wgpu::RenderPassEncoder& renderPass);
-    
+    void FlushVertexData(const std::vector<Vertex>& vertices, WGPURenderPipeline pipeline, WGPURenderPassEncoder renderPass);
+
     // Shader creation helpers
-    wgpu::ShaderModule CreateShaderModule(const char* source);
-    std::string GetPointVertexShader();
-    std::string GetPointFragmentShader();
-    std::string GetLineVertexShader();
-    std::string GetLineFragmentShader();
-    std::string GetTriangleVertexShader();
-    std::string GetTriangleFragmentShader();
+    WGPUShaderModule CreateShaderModule(const char* source);
 };
 
 } // namespace alice2

@@ -90,8 +90,7 @@ void UnifiedRenderer::BeginFrame() {
 }
 
 void UnifiedRenderer::EndFrame() {
-    // Placeholder implementation for now
-    // Actual WebGPU rendering will be implemented later
+    // Placeholder implementation - WebGPU C API rendering to be implemented
 
     // For debugging, print what we would render
     if (!m_PointVertices.empty()) {
@@ -103,6 +102,18 @@ void UnifiedRenderer::EndFrame() {
     if (!m_TriangleVertices.empty()) {
         std::cout << "Would render " << m_TriangleVertices.size() << " triangle vertices" << std::endl;
     }
+
+    // TODO: Implement actual WebGPU C API rendering
+    // This requires:
+    // 1. wgpuSurfaceGetCurrentTexture()
+    // 2. wgpuTextureCreateView()
+    // 3. wgpuDeviceCreateCommandEncoder()
+    // 4. wgpuCommandEncoderBeginRenderPass()
+    // 5. Set pipelines and draw calls
+    // 6. wgpuRenderPassEncoderEnd()
+    // 7. wgpuCommandEncoderFinish()
+    // 8. wgpuQueueSubmit()
+    // 9. wgpuSurfacePresent()
 }
 
 void UnifiedRenderer::Clear(const Color& clearColor) {
@@ -161,64 +172,135 @@ void UnifiedRenderer::EndLines() {
 }
 
 void UnifiedRenderer::SetViewMatrix(const float* viewMatrix) {
-    std::memcpy(m_ViewMatrix.data(), viewMatrix, 16 * sizeof(float));
+    if (viewMatrix) {
+        std::copy(viewMatrix, viewMatrix + 16, m_ViewMatrix.begin());
+    }
 }
 
 void UnifiedRenderer::SetProjectionMatrix(const float* projMatrix) {
-    std::memcpy(m_ProjectionMatrix.data(), projMatrix, 16 * sizeof(float));
+    if (projMatrix) {
+        std::copy(projMatrix, projMatrix + 16, m_ProjectionMatrix.begin());
+    }
 }
 
 void UnifiedRenderer::SetModelMatrix(const float* modelMatrix) {
-    std::memcpy(m_ModelMatrix.data(), modelMatrix, 16 * sizeof(float));
+    if (modelMatrix) {
+        std::copy(modelMatrix, modelMatrix + 16, m_ModelMatrix.begin());
+    }
 }
 
 void UnifiedRenderer::SetViewport(int width, int height) {
     m_Width = width;
     m_Height = height;
-
-    // Placeholder for surface reconfiguration
-    // Will be implemented when WebGPU is properly set up
     std::cout << "Setting viewport to " << width << "x" << height << std::endl;
+
+    // TODO: Reconfigure WebGPU surface when implemented
 }
 
 void UnifiedRenderer::SetClearColor(const Color& color) {
     m_ClearColor = color;
 }
 
+
+
 bool UnifiedRenderer::InitializeWebGPU() {
-    std::cout << "Initializing WebGPU..." << std::endl;
+    std::cout << "WebGPU initialization placeholder - C API implementation needed" << std::endl;
 
-    // For now, create a simplified placeholder implementation
-    // The full WebGPU initialization requires careful handling of the async API
-    // which is complex to implement correctly in this context
+    // For now, just initialize basic state
+    auto [width, height] = m_Platform->GetFramebufferSize();
+    m_Width = width;
+    m_Height = height;
 
-    std::cout << "WebGPU initialization placeholder - will be implemented with proper async handling" << std::endl;
+    std::cout << "Viewport size: " << m_Width << "x" << m_Height << std::endl;
+
+    // TODO: Implement actual WebGPU C API initialization
+    // This requires:
+    // 1. wgpuCreateInstance()
+    // 2. Create surface from platform
+    // 3. Request adapter with callback
+    // 4. Request device with callback
+    // 5. Configure surface
+
     return true;
 }
 
 bool UnifiedRenderer::CreatePipelines() {
-    // For now, just return true - we'll implement the actual pipelines later
-    std::cout << "Pipelines created (placeholder)" << std::endl;
+    std::cout << "WebGPU pipeline creation placeholder" << std::endl;
+
+    // TODO: Implement WebGPU C API pipeline creation
+    // This requires:
+    // 1. wgpuDeviceCreateBindGroupLayout()
+    // 2. wgpuDeviceCreatePipelineLayout()
+    // 3. wgpuDeviceCreateShaderModule() for vertex/fragment shaders
+    // 4. wgpuDeviceCreateRenderPipeline() for each primitive type
+
     return true;
 }
 
 bool UnifiedRenderer::CreateBuffers() {
-    // For now, just return true - we'll implement the actual buffers later
-    std::cout << "Buffers created (placeholder)" << std::endl;
+    std::cout << "WebGPU buffer creation placeholder" << std::endl;
+
+    // Initialize transformation matrices to identity
+    std::fill(m_ViewMatrix.begin(), m_ViewMatrix.end(), 0.0f);
+    std::fill(m_ProjectionMatrix.begin(), m_ProjectionMatrix.end(), 0.0f);
+    std::fill(m_ModelMatrix.begin(), m_ModelMatrix.end(), 0.0f);
+
+    // Set identity matrices
+    m_ViewMatrix[0] = m_ViewMatrix[5] = m_ViewMatrix[10] = m_ViewMatrix[15] = 1.0f;
+    m_ProjectionMatrix[0] = m_ProjectionMatrix[5] = m_ProjectionMatrix[10] = m_ProjectionMatrix[15] = 1.0f;
+    m_ModelMatrix[0] = m_ModelMatrix[5] = m_ModelMatrix[10] = m_ModelMatrix[15] = 1.0f;
+
+    // TODO: Implement WebGPU C API buffer creation
+    // This requires:
+    // 1. wgpuDeviceCreateBuffer() for vertex and uniform buffers
+    // 2. wgpuDeviceCreateBindGroup() for uniform binding
+
     return true;
 }
 
 void UnifiedRenderer::UpdateUniformBuffer() {
-    // For now, just a placeholder
+    // Placeholder - matrix calculations work but WebGPU buffer update not implemented
+
+    // Combine view and projection matrices
+    std::array<float, 16> viewProjectionMatrix;
+
+    // Matrix multiplication: viewProjection = projection * view
+    for (int row = 0; row < 4; ++row) {
+        for (int col = 0; col < 4; ++col) {
+            float sum = 0.0f;
+            for (int k = 0; k < 4; ++k) {
+                sum += m_ProjectionMatrix[row * 4 + k] * m_ViewMatrix[k * 4 + col];
+            }
+            viewProjectionMatrix[row * 4 + col] = sum;
+        }
+    }
+
+    // TODO: Upload to WebGPU uniform buffer using wgpuQueueWriteBuffer()
 }
 
-void UnifiedRenderer::FlushVertexData(const std::vector<Vertex>& vertices, wgpu::RenderPipeline pipeline, wgpu::RenderPassEncoder& renderPass) {
+void UnifiedRenderer::FlushVertexData(const std::vector<Vertex>& vertices, WGPURenderPipeline pipeline, WGPURenderPassEncoder renderPass) {
     if (vertices.empty() || !pipeline) {
         return;
     }
 
-    // For now, just a placeholder - will implement actual vertex buffer upload and rendering
-    std::cout << "Rendering " << vertices.size() << " vertices" << std::endl;
+    // Placeholder for WebGPU C API vertex rendering
+    std::cout << "Would render " << vertices.size() << " vertices with WebGPU C API" << std::endl;
+
+    // TODO: Implement WebGPU C API vertex rendering
+    // This requires:
+    // 1. wgpuQueueWriteBuffer() to upload vertex data
+    // 2. wgpuRenderPassEncoderSetPipeline()
+    // 3. wgpuRenderPassEncoderSetBindGroup()
+    // 4. wgpuRenderPassEncoderSetVertexBuffer()
+    // 5. wgpuRenderPassEncoderDraw()
+}
+
+WGPUShaderModule UnifiedRenderer::CreateShaderModule(const char* source) {
+    // Placeholder for WebGPU C API shader creation
+    std::cout << "Would create shader module with WebGPU C API" << std::endl;
+
+    // TODO: Implement using wgpuDeviceCreateShaderModule()
+    return nullptr;
 }
 
 } // namespace alice2
