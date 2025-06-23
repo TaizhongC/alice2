@@ -54,31 +54,38 @@ void Scene::Update(float deltaTime) {
 }
 
 void Scene::Render(UnifiedRenderer* renderer) {
-    if (!renderer || !m_Camera) {
+    if (!renderer) {
         return;
     }
 
-    // Set camera matrices
-    float viewMatrix[16];
-    float projMatrix[16];
-    m_Camera->GetViewMatrix(viewMatrix);
-    m_Camera->GetProjectionMatrix(projMatrix);
+    // DEBUGGING: Test with identity matrices to render directly in NDC space
+    float identityMatrix[16] = {
+        1.0f, 0.0f, 0.0f, 0.0f,
+        0.0f, 1.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, 1.0f, 0.0f,
+        0.0f, 0.0f, 0.0f, 1.0f
+    };
 
-    renderer->SetViewMatrix(viewMatrix);
-    renderer->SetProjectionMatrix(projMatrix);
+    renderer->SetViewMatrix(identityMatrix);
+    renderer->SetProjectionMatrix(identityMatrix);
 
-    // Render test points
-    renderer->BeginPoints();
-    for (const auto& point : m_TestPoints) {
-        renderer->AddPoint(point, Color::Red(), 5.0f);
-    }
-    renderer->EndPoints();
+    // Simple NDC test - render basic geometry directly in normalized device coordinates
 
-    // Render test lines
+    // Render a simple triangle directly in NDC space (-1 to 1 range)
+    renderer->BeginTriangles();
+    Vec3f p0(-0.8f, -0.8f, 0.0f);  // Bottom left
+    Vec3f p1(0.8f, -0.8f, 0.0f);   // Bottom right
+    Vec3f p2(0.0f, 0.8f, 0.0f);    // Top center
+    Color triangleColor(1.0f, 0.0f, 0.0f, 1.0f); // Bright red, fully opaque
+    renderer->AddTriangle(p0, p1, p2, triangleColor);
+    renderer->EndTriangles();
+
+    // Render a simple line directly in NDC space
     renderer->BeginLines();
-    for (const auto& line : m_TestLines) {
-        renderer->AddLine(line.first, line.second, Color::Blue());
-    }
+    Vec3f lineStart(-0.9f, 0.0f, 0.0f);
+    Vec3f lineEnd(0.9f, 0.0f, 0.0f);
+    Color lineColor(0.0f, 1.0f, 0.0f, 1.0f); // Bright green
+    renderer->AddLine(lineStart, lineEnd, lineColor);
     renderer->EndLines();
 }
 

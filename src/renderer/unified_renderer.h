@@ -44,6 +44,10 @@ public:
     void BeginLines();
     void AddLine(const Vec3f& start, const Vec3f& end, const Color& color);
     void EndLines();
+
+    void BeginTriangles();
+    void AddTriangle(const Vec3f& p0, const Vec3f& p1, const Vec3f& p2, const Color& color);
+    void EndTriangles();
     
     // Camera and transformation
     void SetViewMatrix(const float* viewMatrix);
@@ -72,7 +76,7 @@ private:
     // Rendering state
     int m_Width = 0;
     int m_Height = 0;
-    Color m_ClearColor = Color(0.2f, 0.2f, 0.2f, 1.0f);
+    Color m_ClearColor = Color(0.0f, 0.0f, 0.0f, 1.0f); // Black background for better line visibility
     
     // Transformation matrices
     std::array<float, 16> m_ViewMatrix;

@@ -41,8 +41,8 @@ private:
 
     // Orbital camera parameters
     float m_Distance = 5.0f;
-    float m_Yaw = 0.0f;      // Rotation around Y axis
-    float m_Pitch = 0.0f;    // Rotation around X axis
+    float m_Yaw = 0.785f;    // Rotation around Y axis (45 degrees for better 3D view)
+    float m_Pitch = -0.524f; // Rotation around X axis (-30 degrees to look down slightly)
 
     float m_Fov = 45.0f;
     float m_Aspect = 16.0f / 9.0f;

@@ -31,7 +31,9 @@ struct VertexOutput {
 @vertex
 fn vs_main(input: VertexInput) -> VertexOutput {
     var output: VertexOutput;
-    output.position = uniforms.mvp_matrix * vec4<f32>(input.position, 1.0);
+    let world_pos = vec4<f32>(input.position, 1.0);
+    let clip_pos = uniforms.mvp_matrix * world_pos;
+    output.position = clip_pos;
     output.color = input.color;
     output.size = input.size;
     return output;
@@ -47,6 +49,9 @@ struct VertexOutput {
 
 @fragment
 fn fs_main(input: VertexOutput) -> @location(0) vec4<f32> {
+    // For now, just return the vertex color
+    // Note: WebGPU doesn't have built-in point size like OpenGL
+    // Point size would need to be handled differently (e.g., geometry shader or instancing)
     return input.color;
 }
 )";
@@ -180,19 +185,8 @@ void UnifiedRenderer::EndFrame() {
         return;
     }
 
-    // Create texture view
-    WGPUTextureViewDescriptor textureViewDesc = {};
-    textureViewDesc.nextInChain = nullptr;
-    textureViewDesc.label = "Alice2 Surface Texture View";
-    textureViewDesc.format = m_SurfaceFormat;
-    textureViewDesc.dimension = WGPUTextureViewDimension_2D;
-    textureViewDesc.baseMipLevel = 0;
-    textureViewDesc.mipLevelCount = 1;
-    textureViewDesc.baseArrayLayer = 0;
-    textureViewDesc.arrayLayerCount = 1;
-    textureViewDesc.aspect = WGPUTextureAspect_All;
-
-    WGPUTextureView textureView = wgpuTextureCreateView(surfaceTexture.texture, &textureViewDesc);
+    // Create texture view (use nullptr for default settings like working version)
+    WGPUTextureView textureView = wgpuTextureCreateView(surfaceTexture.texture, nullptr);
     if (!textureView) {
         std::cerr << "Failed to create texture view" << std::endl;
         return;
@@ -244,6 +238,11 @@ void UnifiedRenderer::EndFrame() {
     // Render lines
     if (!m_LineVertices.empty()) {
         FlushVertexData(m_LineVertices, m_LinePipeline, renderPass);
+    }
+
+    // Render triangles
+    if (!m_TriangleVertices.empty()) {
+        FlushVertexData(m_TriangleVertices, m_TrianglePipeline, renderPass);
     }
 
     // End render pass
@@ -328,6 +327,24 @@ void UnifiedRenderer::AddLine(const Vec3f& start, const Vec3f& end, const Color&
 
 void UnifiedRenderer::EndLines() {
     // Lines will be rendered in EndFrame()
+}
+
+void UnifiedRenderer::BeginTriangles() {
+    m_TriangleVertices.clear();
+}
+
+void UnifiedRenderer::AddTriangle(const Vec3f& p0, const Vec3f& p1, const Vec3f& p2, const Color& color) {
+    Vertex v0 = {{p0.x, p0.y, p0.z}, color, 1.0f};
+    Vertex v1 = {{p1.x, p1.y, p1.z}, color, 1.0f};
+    Vertex v2 = {{p2.x, p2.y, p2.z}, color, 1.0f};
+
+    m_TriangleVertices.push_back(v0);
+    m_TriangleVertices.push_back(v1);
+    m_TriangleVertices.push_back(v2);
+}
+
+void UnifiedRenderer::EndTriangles() {
+    // Triangles will be rendered in EndFrame()
 }
 
 void UnifiedRenderer::SetViewMatrix(const float* viewMatrix) {
@@ -449,11 +466,10 @@ bool UnifiedRenderer::InitializeWebGPU() {
     }
     std::cout << "✓ WebGPU queue obtained" << std::endl;
 
-    // 5. Configure surface
-    WGPUSurfaceCapabilities surfaceCaps;
-    wgpuSurfaceGetCapabilities(m_Surface, adapter, &surfaceCaps);
+    // 5. Configure surface (use preferred format like working version)
+    m_SurfaceFormat = wgpuSurfaceGetPreferredFormat(m_Surface, adapter);
 
-    m_SurfaceFormat = surfaceCaps.formats[0]; // Use first available format
+    std::cout << "Surface format: " << m_SurfaceFormat << std::endl;
 
     WGPUSurfaceConfiguration surfaceConfig = {};
     surfaceConfig.nextInChain = nullptr;
@@ -602,6 +618,18 @@ bool UnifiedRenderer::CreatePipelines() {
     }
     std::cout << "✓ Line pipeline created" << std::endl;
 
+    // Create triangle pipeline (same as point but different topology)
+    WGPURenderPipelineDescriptor trianglePipelineDesc = pointPipelineDesc;
+    trianglePipelineDesc.label = "Alice2 Triangle Pipeline";
+    trianglePipelineDesc.primitive.topology = WGPUPrimitiveTopology_TriangleList;
+
+    m_TrianglePipeline = wgpuDeviceCreateRenderPipeline(m_Device, &trianglePipelineDesc);
+    if (!m_TrianglePipeline) {
+        std::cerr << "Failed to create triangle pipeline" << std::endl;
+        return false;
+    }
+    std::cout << "✓ Triangle pipeline created" << std::endl;
+
     // Store bind group layout for buffer creation
     m_BindGroupLayout = bindGroupLayout;
 
@@ -700,6 +728,22 @@ void UnifiedRenderer::UpdateUniformBuffer() {
         }
     }
 
+    // Debug: Print matrix values occasionally
+    static int debugCounter = 0;
+    if (debugCounter % 300 == 0) {
+        std::cout << "View matrix: [" << m_ViewMatrix[0] << "," << m_ViewMatrix[1] << "," << m_ViewMatrix[2] << "," << m_ViewMatrix[3] << "]" << std::endl;
+        std::cout << "Proj matrix: [" << m_ProjectionMatrix[0] << "," << m_ProjectionMatrix[1] << "," << m_ProjectionMatrix[2] << "," << m_ProjectionMatrix[3] << "]" << std::endl;
+        std::cout << "MVP matrix: [" << viewProjectionMatrix[0] << "," << viewProjectionMatrix[1] << "," << viewProjectionMatrix[2] << "," << viewProjectionMatrix[3] << "]" << std::endl;
+
+        // Print full MVP matrix for debugging
+        std::cout << "Full MVP matrix:" << std::endl;
+        for (int i = 0; i < 4; i++) {
+            std::cout << "[" << viewProjectionMatrix[i*4+0] << ", " << viewProjectionMatrix[i*4+1] << ", "
+                      << viewProjectionMatrix[i*4+2] << ", " << viewProjectionMatrix[i*4+3] << "]" << std::endl;
+        }
+    }
+    debugCounter++;
+
     // Upload to WebGPU uniform buffer
     wgpuQueueWriteBuffer(m_Queue, m_UniformBuffer, 0, viewProjectionMatrix.data(), sizeof(float) * 16);
 }
@@ -708,6 +752,16 @@ void UnifiedRenderer::FlushVertexData(const std::vector<Vertex>& vertices, WGPUR
     if (vertices.empty() || !pipeline || !renderPass) {
         return;
     }
+
+    // Debug: Print first vertex data occasionally
+    static int debugCounter = 0;
+    if (debugCounter % 300 == 0 && !vertices.empty()) {
+        const auto& v = vertices[0];
+        std::cout << "First vertex: pos(" << v.position.x << "," << v.position.y << "," << v.position.z
+                  << ") color(" << v.color.r << "," << v.color.g << "," << v.color.b << "," << v.color.a
+                  << ") size(" << v.size << ")" << std::endl;
+    }
+    debugCounter++;
 
     // Upload vertex data to buffer
     size_t dataSize = vertices.size() * sizeof(Vertex);
