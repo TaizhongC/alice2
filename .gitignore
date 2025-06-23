@@ -1,3 +1,5 @@
+/build
+/_build
 /_build_native
 /depends/webgpu/bin/
 

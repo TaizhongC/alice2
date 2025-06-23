@@ -88,6 +88,7 @@ private:
     WGPUBuffer m_VertexBuffer = nullptr;
     WGPUBuffer m_UniformBuffer = nullptr;
     WGPUBindGroup m_UniformBindGroup = nullptr;
+    WGPUBindGroupLayout m_BindGroupLayout = nullptr;
     
     // Vertex data for batching
     std::vector<Vertex> m_PointVertices;
